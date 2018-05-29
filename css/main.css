@@ -1,0 +1,90 @@
+* {
+    user-select: none;
+}
+
+body {
+    background: #000000;
+    color: #333333;
+    font-family: 'Special Elite', cursive;
+    font-size: 30px;
+}
+
+#server-waiting {
+    background: rgba(33, 33, 33, 1);
+    color: rgba(76, 175, 80, 1);
+    height: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+#server-waiting.hide {
+    animation: fadein 250ms ease-in forwards;
+}
+
+#server-waiting p {
+    background: rgba(38, 50, 56, 1);
+    display: inline-block;
+    padding: 15px 25px;
+    margin: 40px;
+}
+
+#game {
+    background: rgba(33, 33, 33, 1);
+    box-sizing: border-box;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    padding: 20px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+#map {
+    background: rgba(38, 50, 56, 1);
+    box-sizing: border-box;
+    border: 5px solid rgba(56, 142, 60, 0.3);
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.client {
+    color: rgba(102, 187, 106, 0.4);
+    font-size: 50px;
+    left: 0;
+    line-height: 50px;
+    margin-top: -25px;
+    margin-left: -25px;
+    position: absolute;
+    text-align: center;
+    text-shadow: 5px 5px rgba(0, 0, 0, 0.5);
+    top: 0;
+    width: 50px;
+}
+
+.client-pos {
+    color: rgba(102, 187, 106, 0.8);
+}
+
+.client-other {
+    color: rgba(244, 67, 54, 0.6);
+}
+
+#pos {
+    display: none;
+}
+
+#pos.visible {
+    display: block;
+}
+
+@keyframes fadein {
+    0%   { opacity: 0; height: 0; }
+    1%   { opacity: 0; height: 100%; }
+    100% { opacity: 1; height: 100%; }
+}

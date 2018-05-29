@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Sockets client</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Special+Elite">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
+    <script src="js/reconnecting-websocket.min.js"></script>
+</head>
+
+<body>
+
+    <div id="server-waiting" class="hide">
+        <p>Waiting for server connection . . .</p>
+    </div>
+
+    <div id="game">
+        <div id="map">
+            <span class="client" id="pos">x</span>
+        </div>
+    </div>
+
+    <script>
+        var isServerConnected = false;
+        var clientId = null;
+
+        var connection = new ReconnectingWebSocket('ws://localhost:100');
+        connection.onopen = function(e) {
+            console.log("connected");
+            connection.send('{"connect": "client"}');
+        };
+        connection.onerror = function (e) {
+            console.log('An error occurred.');
+            console.log(e);
+            connect(false);
+        };
+        connection.onmessage = function(e) {
+            var messageData = JSON.parse(e.data);
+            console.log(messageData);
+
+            if (messageData.client_id) {
+                clientId = messageData.client_id;
+            }
+
+            if (typeof messageData.server_data !== "undefined" && messageData.server_data.length !== 0) {
+                if (!isServerConnected) {
+                    connect(true);
+                }
+
+                var clients = messageData.server_data.clients || [];
+                for (var id in clients) {
+                    if (clients.hasOwnProperty(id)) {
+                        moveClient(clients[id]);
+                    }
+                }
+            }
+
+            if (messageData.server_disconnect) {
+                connect(false);
+            }
+        };
+
+        function connect(isConnected)
+        {
+            isConnected = isConnected || false;
+            isServerConnected = isConnected;
+
+            $('#server-waiting').toggleClass('hide', !isConnected);
+
+            if (!isServerConnected) {
+                $('#pos').removeClass('visible');
+                $('.client-pos, .client-other').remove();
+            }
+        }
+
+        function moveClient(data)
+        {
+            var clientObj = $('#client-' + data.id);
+            if (clientObj.length > 0) {
+                clientObj.remove();
+            }
+
+            var map = $('#map');
+            console.log(data.id, clientId);
+            var clientClass = data.id === clientId ? 'client-pos' : 'client-other';
+            clientObj = $('<div class="client ' + clientClass + '" id="client-' + data.id + '">o</div>')
+                .css('top', map.height() * data.y)
+                .css('left', map.width() * data.x);
+
+            map.append(clientObj);
+        }
+
+
+        $('#map').click(function (e) {
+            var posX = e.pageX - $(this).offset().left,
+                posY = e.pageY - $(this).offset().top;
+
+            $('#pos')
+                .css('left', posX)
+                .css('top', posY)
+                .addClass('visible');
+
+            connection.send(JSON.stringify({
+                "data": {
+                    "x": posX / $(this).width(),
+                    "y": posY / $(this).height()
+                }
+            }));
+        });
+    </script>
+
+</body>
+
+</html>
